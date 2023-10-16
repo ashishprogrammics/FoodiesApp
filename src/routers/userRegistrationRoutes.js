@@ -9,13 +9,17 @@ const {
     frogotPassword,
     verifyFrogotPassword,
     getAllUser,
-    deleteUser
+    deleteUser,
+    apploginUser,
+    verifyAppLogin
 }=require('../controller/userRegistrationController');
 
 router.get("/getAllUser",getAllUser)
 router.post("/register",registerUserData)
 router.post("/loginAdmin",loginAdminData)
 router.patch("/loginUser",loginUserData)
+router.patch("/applogin",apploginUser)
+router.patch("/verifyLogin",verifyAppLogin)
 router.patch("/verify", verifyEmail);
 router.post("/forgot", frogotPassword);
 router.patch("/verifyForgot", verifyFrogotPassword);

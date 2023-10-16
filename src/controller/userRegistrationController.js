@@ -8,6 +8,8 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const { match } = require('assert');
 const user = require('../models/user');
+const { generateToken } = require("../../config/jwtToken");
+
 
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -15,13 +17,13 @@ function generateOTP() {
 
 
 const registerUserData = async (req, res) => {
-  const { fullName, email, password } = req.body;
+  const { fullName, email, password, mobileNumber, gender, dob } = req.body;
 
   const isExisting = await findUserByEmail(email);
   if (isExisting) {
     return res.status(400).json({ success: false, message: 'User already exists' });
   }
-  const newUser = await createUser(fullName, email, password);
+  const newUser = await createUser(fullName, email, password, mobileNumber, gender, dob);
   if (newUser) {
     return res.status(200).json({ success: true, message: 'User created successfully', user: newUser });
   } else {
@@ -47,7 +49,7 @@ const verifyEmail = async (req, res) => {
 };
 
 
-const findUserByEmail = async ( email) => {
+const findUserByEmail = async (email) => {
   const user = await User.findOne({
     email,
   });
@@ -100,7 +102,7 @@ const validateUserSignUp = async (email, otp) => {
     const updatedUser = await User.findOneAndUpdate(
       { _id: user._id },
       { $set: { active: true } },
-      {token:refreshToken },
+      { token: refreshToken },
       { new: true }
     );
 
@@ -123,7 +125,7 @@ const loginAdminData = async (req, res) => {
   try {
     // const  email  = req.body;
     // const  password  = req.body;
-    const {email, password}  = req.body;
+    const { email, password } = req.body;
 
     const findUser = await User.findOne({ email: email });
     if (findUser) {
@@ -134,7 +136,7 @@ const loginAdminData = async (req, res) => {
           to: email,
           OTP,
         });
-      //  return res.render("index")
+        //  return res.render("index")
         return res.json({ success: true, message: 'OTP sent successfully' });
       } else {
         return res.json({ success: false, message: 'Invalid password' });
@@ -154,107 +156,165 @@ const frogotPassword = async (req, res) => {
     const { email } = req.body;
     const findUser = await User.findOne({ email: email });
     if (findUser) {
-        const OTP = findUser.otp;
-        await sendMail({
-          to: email,
-          OTP,
-        });
-        console.log("OTP sent:", OTP);
-        return res.json({ success: true, message: 'OTP sent successfully' });
-      } 
-     else {
+      const OTP = findUser.otp;
+      await sendMail({
+        to: email,
+        OTP,
+      });
+      console.log("OTP sent:", OTP);
+      return res.json({ success: true, message: 'OTP sent successfully' });
+    }
+    else {
       return res.json({ success: false, message: 'User not registered' });
     }
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: 'An error occurred' });
-  }};
+  }
+};
 
-  
-  const verifyFrogotPassword = async (req, res) => {
-    const { email, otp, password } = req.body;
-    try {
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.json({ success: false, message: 'User not found' });
+
+const verifyFrogotPassword = async (req, res) => {
+  const { email, otp, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.json({ success: false, message: 'User not found' });
+    }
+    if (user.otp !== otp) {
+      return res.json({ success: false, message: 'Invalid OTP' });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: user._id },
+      { $set: { password: hashedPassword } },
+      { new: true }
+    );
+    return res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'An error occurred' });
+  }
+};
+
+const loginUserData = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const findUser = await User.findOne({ email: email });
+
+    if (findUser) {
+      const match = await bcrypt.compare(password, findUser.password);
+
+      if (match) {
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: findUser._id },
+          { $set: { active: true } },
+          { new: true }
+        );
+        return res.json({ success: true, message: 'Login successfully', updatedUser });
+      } else {
+        return res.json({ success: false, message: 'Invalid password' });
       }
-      if (user.otp !== otp) {
-        return res.json({ success: false, message: 'Invalid OTP' });
-      }
-      const hashedPassword = await bcrypt.hash(password, 10);
+    } else {
+      return res.json({ success: false, message: 'User not registered' });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'An error occurred' });
+  }
+};
+
+
+const apploginUser = async (req, res) => {
+  try {
+    const { mobileNumber } = req.body;
+    const findUser = await User.findOne({ mobileNumber: mobileNumber });
+
+    if (!findUser) {
+      const otpGenerated = generateOTP();
+      const newUser = await User.create({
+        mobileNumber,
+        otp: otpGenerated,
+      });
+      return res.json({ success: true, message: 'Login otp', newUser });
+    } else {
+      const otpGenerated = generateOTP(); // Move this line inside the 'else' block
       const updatedUser = await User.findOneAndUpdate(
-        { _id: user._id },
-        { $set: { password: hashedPassword } },
+        { _id: findUser._id },
+        { $set: { otp: otpGenerated } },
         { new: true }
       );
-      return res.json({ success: true, user: updatedUser });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ success: false, message: 'An error occurred' });
+      return res.json({ success: true, message: 'Login otp', updatedUser });
     }
-  };
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'An error occurred' });
+  }
+};
+const verifyAppLogin = async (req, res) => {
+  const { mobileNumber, otp } = req.body;
+  try {
+    const user = await User.findOne({ mobileNumber });
+    if (!user) {
+      return res.json({ success: false, message: 'mobileNumber not found' });
+    }
+    if (user.otp !== otp) {
+      return res.json({ success: false, message: 'Invalid OTP' });
+    }
 
-  const loginUserData = async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      const findUser = await User.findOne({ email: email });
-      
-      if (findUser) {
-        const match = await bcrypt.compare(password, findUser.password);
-        
-        if (match) {
-          const updatedUser = await User.findOneAndUpdate(
-            { _id: findUser._id }, 
-            { $set: { active: true } },
-            { new: true }
-          );
-          return res.json({ success: true, message: 'Login successfully', updatedUser });
-        } else {
-          return res.json({ success: false, message: 'Invalid password' });
+    const refreshToken = generateToken(User._id);
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: user._id },
+      {
+        $set: {
+          active: true, 
+          token: refreshToken
         }
-      } else {
-        return res.json({ success: false, message: 'User not registered' });
-      }
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ success: false, message: 'An error occurred' });
-    }
-  };
-  
-  const getAllUser = async (req, res) => {
-    try {
-      const allUserDogs = await User.find({})
-        // .populate({
-        //   path: 'user',
-        //   select: 'fullName', // Populate the 'user' field with 'fullName'
-        // })
-        // .populate({
-        //   path: 'round_2',
-          // populate: {
-          //   path: 'chosenDog', // Populate the 'chosenDog' reference in 'rounds'
-          //   model: 'Dog', // Specify the model to use (assuming it's 'Dog')
-          // },
-        // });
-      res.json({ allUserDogs });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+      },
+      { new: true }
+    );
+    return res.json({ success: true, message: 'login Sucessfuly', user: updatedUser });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'An error occurred' });
+  }
+};
 
-  const deleteUser = async(req,res)=>{
-    try{
-        const user = await User.findById(req.params.id)
-        // User.id = req.body.tech
-        const a1 = await user.deleteOne()
-        res.send('deleted sucessfully')
-    }catch(err){
-      res.status(500).json({ message: 'Internal server error' });
-    }
+const getAllUser = async (req, res) => {
+  try {
+    const allUserDogs = await User.find({})
+    // .populate({
+    //   path: 'user',
+    //   select: 'fullName', // Populate the 'user' field with 'fullName'
+    // })
+    // .populate({
+    //   path: 'round_2',
+    // populate: {
+    //   path: 'chosenDog', // Populate the 'chosenDog' reference in 'rounds'
+    //   model: 'Dog', // Specify the model to use (assuming it's 'Dog')
+    // },
+    // });
+    res.json({ allUserDogs });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+    // User.id = req.body.tech
+    const a1 = await user.deleteOne()
+    res.send('deleted sucessfully')
+  } catch (err) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
 }
 
-  
-  
+
+
 
 module.exports = {
   registerUserData,
@@ -264,7 +324,10 @@ module.exports = {
   frogotPassword,
   verifyFrogotPassword,
   getAllUser,
-  deleteUser
-  
+  deleteUser,
+  apploginUser,
+  verifyAppLogin
+
+
 }
 

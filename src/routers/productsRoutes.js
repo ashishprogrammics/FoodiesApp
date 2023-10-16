@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const uploadOptions = require("../middleware/uploadImage")
+const {isAdmin,authMiddleware} = require("../middleware/auth")
+
 const {
   getAllProducts,
   deleteProduct,
@@ -14,7 +16,7 @@ const Orders = require('../models/orders');
 const payments = require('../models/payments');
 
 
-router.get("/allproducts", getAllProducts);
+router.get("/allproducts",authMiddleware, getAllProducts);
 router.delete("/:id", deleteProduct);
 router.patch("/edit/:id", editProduct);
 router.post("/create", createProductData);
