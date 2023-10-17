@@ -228,6 +228,10 @@ const loginUserData = async (req, res) => {
 const apploginUser = async (req, res) => {
   try {
     const { mobileNumber } = req.body;
+    if (!mobileNumber) {
+      return res.status(404).json({ success: false, message: 'mobile number not inserted ' });
+    }
+
     const findUser = await User.findOne({ mobileNumber: mobileNumber });
 
     if (!findUser) {
@@ -268,7 +272,7 @@ const verifyAppLogin = async (req, res) => {
       { _id: user._id },
       {
         $set: {
-          active: true, 
+          active: true,
           token: refreshToken
         }
       },
