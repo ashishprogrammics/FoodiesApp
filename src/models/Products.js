@@ -13,11 +13,15 @@ const productsSchema = new mongoose.Schema({
         type: String,
         // required: true
     },
-    Category : {
+    size: {
         type: String,
         // required: true
     },
-	Description : {
+    Category: {
+        type: String,
+        // required: true
+    },
+    Description: {
         type: String,
         // required: true
     },
@@ -27,7 +31,15 @@ const productsSchema = new mongoose.Schema({
     },
     image: {
         type: String,
-        default: ''
+    },
+    rating: {
+        type: String,
+    },
+    status: {
+        type: String,
+    },
+    discount: {
+        type: String,
     }
 
 })

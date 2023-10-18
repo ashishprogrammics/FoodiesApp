@@ -9,17 +9,38 @@ const ordersSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Cart'
     },
+
+    Address: {
+        type: String,
+    },
+
+    Payment_Method: {
+        type: String,
+    },
+    Payment_Status: {
+        type: String,
+    },
+
+    Order_Status: {
+        type: String,
+
+    },
+    Ordered_Items: {
+        type: String,
+
+    },
+
     TotalAmount: {
         type: String,
         required: true
     },
-    Status : {
+    Status: {
         type: String,
         required: true,
-        enum : ['ordered','shipped','delivered'],
+        enum: ['ordered', 'shipped', 'delivered'],
         default: 'delivered'
     },
-	// Remark : {
+    // Remark : {
     //     type: String,
     //     required: true
     // },

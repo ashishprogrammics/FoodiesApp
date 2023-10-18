@@ -31,22 +31,27 @@ const getAllProducts = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
   try {
-    const product = await Products.findById(req.params.id)
-    const a1 = await product.deleteOne()
-    res.send('deleted sucessfully')
+    const product = await Products.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    await product.deleteOne();
+    res.status(200).json({ message: 'Product deleted successfully' });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Internal server error' });
   }
-}
-
+};
 
 const editProduct = async (req, res) => {
-  const { Name, Price, Type, Description, Category } = req.body;
+  const { Name, Price, Type, Description, Category, status, rating, image, size, discount } = req.body;
 
   try {
     const updatedProduct = await Products.findOneAndUpdate(
       { _id: req.params.id },
-      { $set: { Name, Price, Type, Description, Category } },
+      { $set: { Name, Price, Type, Description, Category, status, rating, image, size, discount } },
       { new: true }
     );
 
@@ -64,7 +69,7 @@ const editProduct = async (req, res) => {
 
 
 const createProductData = async (req, res) => {
-  const { Name, Price, Type, Description, Category } = req.body;
+  const { Name, Price, Type, Description, Category, status, rating, image, size, discount } = req.body;
 
   try {
     const newProduct = await Products.create({
@@ -73,6 +78,11 @@ const createProductData = async (req, res) => {
       Type,
       Description,
       Category,
+      discount,
+      status,
+      rating,
+      image,
+      size
     });
 
     return res.json({ success: true, product: newProduct });
