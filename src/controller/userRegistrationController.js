@@ -1,5 +1,6 @@
 const { json } = require('body-parser');
 const { sendMail } = require('../services/MAIL');
+const { encrypt, compare } = require('../services/crypto')
 
 const nodemailer = require('nodemailer');
 const User = require('../models/user');
@@ -318,6 +319,28 @@ const deleteUser = async (req, res) => {
 }
 
 
+const editUserDetails = async (req, res) => {
+  const { fullName, email, password, mobileNumber, gender, dob } = req.body;
+
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: req.params.id },
+      { $set: { fullName, email, password, mobileNumber, gender, dob } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.json({ success: false, message: 'Product not found' });
+    }
+
+    return res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'An error occurred' });
+  }
+};
+
+
 
 
 module.exports = {
@@ -330,7 +353,8 @@ module.exports = {
   getAllUser,
   deleteUser,
   apploginUser,
-  verifyAppLogin
+  verifyAppLogin,
+  editUserDetails
 
 
 }

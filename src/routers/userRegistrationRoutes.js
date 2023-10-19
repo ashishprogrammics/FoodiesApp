@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const User = require('../models/user');
+const {isAdmin,authMiddleware} = require("../middleware/auth")
 
 const {
     registerUserData,
@@ -11,11 +12,13 @@ const {
     getAllUser,
     deleteUser,
     apploginUser,
-    verifyAppLogin
+    verifyAppLogin,
+    editUserDetails
+    
 }=require('../controller/userRegistrationController');
 
 router.get("/getAllUser",getAllUser)
-router.post("/register",registerUserData)
+router.post("/register", authMiddleware, registerUserData)
 router.post("/loginAdmin",loginAdminData)
 router.patch("/loginUser",loginUserData)
 router.patch("/applogin",apploginUser)
@@ -24,6 +27,8 @@ router.patch("/verify", verifyEmail);
 router.post("/forgot", frogotPassword);
 router.patch("/verifyForgot", verifyFrogotPassword);
 router.delete("/:id", deleteUser);
+router.patch("/editUser/:id", authMiddleware, editUserDetails)
+
 
 router.get('/index', (req, res) => {
   res.render("index") 
