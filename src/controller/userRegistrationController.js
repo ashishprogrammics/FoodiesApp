@@ -320,12 +320,12 @@ const deleteUser = async (req, res) => {
 
 
 const editUserDetails = async (req, res) => {
-  const { fullName, email, password, mobileNumber, gender, dob } = req.body;
+  const { fullName, email, password, gender, dob,mobileNumber } = req.body;
 
   try {
     const updatedUser = await User.findOneAndUpdate(
-      { _id: req.params.id },
-      { $set: { fullName, email, password, mobileNumber, gender, dob } },
+      { mobileNumber: mobileNumber },
+      { $set: { fullName, email, password, gender, dob } },
       { new: true }
     );
 
