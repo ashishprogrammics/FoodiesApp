@@ -237,19 +237,19 @@ const apploginUser = async (req, res) => {
 
     if (!findUser) {
       const otpGenerated = generateOTP();
-      const newUser = await User.create({
+      const user = await User.create({
         mobileNumber,
         otp: otpGenerated,
       });
-      return res.json({ success: true, message: 'Login otp', newUser });
+      return res.json({ success: true, message: 'Login otp', user });
     } else {
       const otpGenerated = generateOTP(); // Move this line inside the 'else' block
-      const updatedUser = await User.findOneAndUpdate(
+      const user = await User.findOneAndUpdate(
         { _id: findUser._id },
         { $set: { otp: otpGenerated } },
         { new: true }
       );
-      return res.json({ success: true, message: 'Login otp', updatedUser });
+      return res.json({ success: true, message: 'Login otp', user });
     }
   } catch (err) {
     console.error(err);
