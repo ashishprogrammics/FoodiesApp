@@ -1,26 +1,26 @@
 const router = require('express').Router();
 const uploadOptions = require("../middleware/uploadImage")
-const {isAdmin,authMiddleware} = require("../middleware/auth")
+const { isAdmin, authMiddleware } = require("../middleware/auth")
 
 const {
   getAllProducts,
   deleteProduct,
   editProduct,
-  createProductData
+  // createProductData
 
 
-} = require('../controller/productsController');
+} = require('../controller/categoryController');
 const Products = require('../models/Products');
 const Payments = require('../models/payments');
 const Orders = require('../models/orders');
 const payments = require('../models/payments');
-const category = require('../models/category');
+const Category = require('../models/category');
 
 
-router.get("/allproducts",authMiddleware, getAllProducts);
+router.get("/allproducts", getAllProducts);
 router.delete("/:id", deleteProduct);
 router.patch("/edit/:id", editProduct);
-router.post("/create", createProductData);
+// router.post("/create", createProductData);
 
 
 router.get('/productPage', (req, res) => {
@@ -70,15 +70,21 @@ router.get('/ordersPage', (req, res) => {
 })
 
 router.post(`/image`, uploadOptions.single('image'), async (req, res) => {
-  // const category = await Category.findById(req.body.category);
-  // if (!category) return res.status(400).send('Invalid Category')
 
   const file = req.file;
-  if (!file) return res.status(400).send('No image in the request')
+  const { categoryName, type } = req.body;
+
+  const category = await Category.findOne({ categoryName });
+  if (category) return res.status(400).send('Category already exists')
+
+
+  // if (!file) return res.status(400).send('No image in the request')
 
   const fileName = file.filename
   const basePath = `${req.protocol}://${req.get('host')}/public/images/`;
-  let product1 = new Products({
+  let product1 = new Category({
+    categoryName: categoryName,
+    type: type,
     image: `${basePath}${fileName}`,// "http://localhost:3000/public/upload/image-2323232"
   })
 
@@ -86,8 +92,9 @@ router.post(`/image`, uploadOptions.single('image'), async (req, res) => {
 
   if (!product1)
     return res.status(500).send('The product cannot be created')
-
-  res.send(product1);
+  else {
+    res.send(product1);
+  }
 })
 
 router.get('/image/:id', async (req, res) => {

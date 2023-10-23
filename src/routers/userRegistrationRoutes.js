@@ -15,7 +15,8 @@ const {
     deleteUser,
     apploginUser,
     verifyAppLogin,
-    editUserDetails
+    editUserDetails,
+    getOneUser
     
 }=require('../controller/userRegistrationController');
 
@@ -29,7 +30,8 @@ router.patch("/verify", verifyEmail);
 router.post("/forgot", frogotPassword);
 router.patch("/verifyForgot", verifyFrogotPassword);
 router.delete("/:id", deleteUser);
-router.patch("/editUser/", editUserDetails)
+router.get("/getSingleUser/:id", getOneUser);
+router.patch("/editUser",authMiddleware, editUserDetails)
 
 
 router.get('/index', (req, res) => {

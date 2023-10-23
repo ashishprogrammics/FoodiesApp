@@ -6,11 +6,12 @@ var fs = require('fs');
 var path = require('path');
 const Products = require('../models/Products');
 const Payments = require('../models/Products');
+const Category = require('../models/category');
 
 
 const getAllProducts = async (req, res) => {
     try {
-        const allProducts = await Products.find({})
+        const allProducts = await Category.find({})
         // .populate({
         //   path: 'user',
         //   select: 'fullName', // Populate the 'user' field with 'fullName'
@@ -22,7 +23,7 @@ const getAllProducts = async (req, res) => {
         //   model: 'Dog', // Specify the model to use (assuming it's 'Dog')
         // },
         // });
-        res.json({ Products: allProducts });
+        res.json({ category: allProducts });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });

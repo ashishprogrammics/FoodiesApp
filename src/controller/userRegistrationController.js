@@ -137,8 +137,8 @@ const loginAdminData = async (req, res) => {
           to: email,
           OTP,
         });
-        //  return res.render("index")
-        return res.json({ success: true, message: 'OTP sent successfully' });
+         return res.render("index")
+        // return res.json({ success: true, message: 'OTP sent successfully' });
       } else {
         return res.json({ success: false, message: 'Invalid password' });
       }
@@ -237,19 +237,19 @@ const apploginUser = async (req, res) => {
 
     if (!findUser) {
       const otpGenerated = generateOTP();
-      const newUser = await User.create({
+      const user = await User.create({
         mobileNumber,
         otp: otpGenerated,
       });
-      return res.json({ success: true, message: 'Login otp', newUser });
+      return res.json({ success: true, message: 'Login otp', user });
     } else {
       const otpGenerated = generateOTP(); // Move this line inside the 'else' block
-      const updatedUser = await User.findOneAndUpdate(
+      const user = await User.findOneAndUpdate(
         { _id: findUser._id },
         { $set: { otp: otpGenerated } },
         { new: true }
       );
-      return res.json({ success: true, message: 'Login otp', updatedUser });
+      return res.json({ success: true, message: 'Login otp', user });
     }
   } catch (err) {
     console.error(err);
@@ -306,6 +306,22 @@ const getAllUser = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+const getOneUser = async (req, res) => {
+  try {
+    const { mobileNumber } = req.params;
+
+    const user = await User.findOne({ mobileNumber }); 
+    if (user) {
+      res.json({ user });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 
 const deleteUser = async (req, res) => {
   try {
@@ -354,7 +370,8 @@ module.exports = {
   deleteUser,
   apploginUser,
   verifyAppLogin,
-  editUserDetails
+  editUserDetails,
+  getOneUser
 
 
 }
