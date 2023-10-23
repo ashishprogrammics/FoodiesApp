@@ -33,6 +33,12 @@ app.use('/cart', cart);
 const category = require('./src/routers/categoryRoutes');
 app.use('/category', category);
 
+const Offer = require('./src/routers/offerRoutes');
+app.use('/offer', Offer);
+
+const Banner = require('./src/routers/bannerRoutes');
+app.use('/banner', Banner);
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

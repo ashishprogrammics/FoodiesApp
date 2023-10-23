@@ -30,7 +30,7 @@ router.patch("/verify", verifyEmail);
 router.post("/forgot", frogotPassword);
 router.patch("/verifyForgot", verifyFrogotPassword);
 router.delete("/:id", deleteUser);
-router.get("/getSingleUser/:id", getOneUser);
+router.post("/getSingleUser", getOneUser);
 router.patch("/editUser",authMiddleware, editUserDetails)
 
 

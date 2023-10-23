@@ -308,9 +308,14 @@ const getAllUser = async (req, res) => {
 };
 const getOneUser = async (req, res) => {
   try {
-    const { mobileNumber } = req.params;
+    const { mobileNumber } = req.body;
 
-    const user = await User.findOne({ mobileNumber }); 
+    if (!mobileNumber) {
+      return res.status(400).json({ message: 'Mobile number is required' });
+    }
+
+    const user = await User.findOne({ mobileNumber });
+
     if (user) {
       res.json({ user });
     } else {

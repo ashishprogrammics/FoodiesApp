@@ -7,12 +7,13 @@ var path = require('path');
 const Products = require('../models/Products');
 const Payments = require('../models/Products');
 const Category = require('../models/category');
+const Offer = require('../models/offer');
 
 
 const getAllProducts = async (req, res) => {
     try {
-        const allProducts = await Category.find({})
-        res.json({ category: allProducts });
+        const allProducts = await Offer.find({})
+        res.json({ Offer: allProducts });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
