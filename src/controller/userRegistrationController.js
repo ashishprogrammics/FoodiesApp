@@ -288,7 +288,7 @@ const verifyAppLogin = async (req, res) => {
 
 const getAllUser = async (req, res) => {
   try {
-    const allUserDogs = await User.find({})
+    const getAllUser = await User.find({})
     // .populate({
     //   path: 'user',
     //   select: 'fullName', // Populate the 'user' field with 'fullName'
@@ -300,7 +300,7 @@ const getAllUser = async (req, res) => {
     //   model: 'Dog', // Specify the model to use (assuming it's 'Dog')
     // },
     // });
-    res.json({ allUserDogs });
+    res.json({ getAllUser });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });

@@ -13,7 +13,7 @@ const Offer = require('../models/offer');
 const getAllProducts = async (req, res) => {
     try {
         const allProducts = await Offer.find({})
-        res.json({ Offer: allProducts });
+        res.json({ offer: allProducts });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
