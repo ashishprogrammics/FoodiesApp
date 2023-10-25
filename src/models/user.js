@@ -3,23 +3,23 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
-    // required: false,
+    default: ""
   },
   email: {
     type: String,
-    // required: true,
+    default: "",
   },
   mobileNumber: {
     type: String,
-    // required: true,
+    required: true,
   },
   dob: {
     type: String,
-    // required: true,
+    default: "",
   },
   gender: {
     type: String,
-    // required: true,
+    default: "",
   },
   created: {
     type: String,
@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    // required: true,
+    // default: "",
   },
   lastActive: {
     type: String,
@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
   },
   otp: {
     type: String,
-    // required: true,
+    // default: "",
   },
   token: {
     type: String,
