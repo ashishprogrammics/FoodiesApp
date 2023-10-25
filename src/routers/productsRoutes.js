@@ -68,26 +68,26 @@ router.get('/ordersPage', (req, res) => {
     })
 })
 
-router.post(`/image`, uploadOptions.single('image'), async (req, res) => {
-  // const category = await Category.findById(req.body.category);
-  // if (!category) return res.status(400).send('Invalid Category')
+// router.post(`/image`, uploadOptions.single('image'), async (req, res) => {
+//   // const category = await Category.findById(req.body.category);
+//   // if (!category) return res.status(400).send('Invalid Category')
 
-  const file = req.file;
-  if (!file) return res.status(400).send('No image in the request')
+//   const file = req.file;
+//   if (!file) return res.status(400).send('No image in the request')
 
-  const fileName = file.filename
-  const basePath = `${req.protocol}://${req.get('host')}/public/images/`;
-  let product1 = new Products({
-    image: `${basePath}${fileName}`,// "http://localhost:3000/public/upload/image-2323232"
-  })
+//   const fileName = file.filename
+//   const basePath = `${req.protocol}://${req.get('host')}/public/images/`;
+//   let product1 = new Products({
+//     image: `${basePath}${fileName}`,// "http://localhost:3000/public/upload/image-2323232"
+//   })
 
-  product1 = await product1.save();
+//   product1 = await product1.save();
 
-  if (!product1)
-    return res.status(500).send('The product cannot be created')
+//   if (!product1)
+//     return res.status(500).send('The product cannot be created')
 
-  res.send(product1);
-})
+//   res.send(product1);
+// })
 
 router.get('/image/:id', async (req, res) => {
   try {

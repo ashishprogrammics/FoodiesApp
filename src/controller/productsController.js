@@ -69,36 +69,45 @@ const editProduct = async (req, res) => {
 
 
 const createProductData = async (req, res) => {
-  const { Name, Price, Type, Description, Category, status, rating, image, size, discount } = req.body;
+  const { Name, Price, Type, Description, Category, status, rating, size, discount } = req.body;
 
-  try {
-    const newProduct = await Products.create({
-      Name,
-      Price,
-      Type,
-      Description,
-      Category,
-      discount,
-      status,
-      rating,
-      image,
-      size
-    });
+  // Check if the product already exists in the database
+  const product = await Products.findOne({ Name });
+  if (product) return res.status(400).send('Product already exists');
 
-    return res.json({ success: true, product: newProduct });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: 'An error occurred' });
-  }
+  const file = req.file;
+  // if (!file) return res.status(400).send('No image in the request');
+
+  const fileName = file.filename;
+  const basePath = `${req.protocol}://${req.get('host')}/public/images/`;
+
+  let product1 = new Products({
+    Name,
+    Price,
+    Type,
+    Description,
+    Category,
+    discount,
+    status,
+    rating,
+    image: `${basePath}${fileName}`,
+    size,
+  });
+
+  // Save the new product to the database
+  product1 = await product1.save();
+
+  if (!product1)
+    return res.status(500).send('The product cannot be created');
+
+  res.send(product1);
 };
 
 
-
-
-module.exports = {
-  getAllProducts,
-  deleteProduct,
-  editProduct,
-  createProductData
-}
+  module.exports = {
+    getAllProducts,
+    deleteProduct,
+    editProduct,
+    createProductData
+  }
 
