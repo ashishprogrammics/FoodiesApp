@@ -2,30 +2,21 @@ const jwt = require('jsonwebtoken');
 const User = require("../models/user");
 
 const authMiddleware = (async (req, res, next) => {
-  const { authorization } = req.headers;
-
-  if (authorization && authorization.startsWith("Bearer")) {
-    const token = authorization.split(" ")[1];
-
+  let token;
+  if (req?.headers?.authorization?.startsWith("Bearer")) {
+    token = req.headers.authorization.split(" ")[1];
     try {
-      const decoded = jwt.verify(token,"apple");
-      const user = await User.findById(decoded.id);
-      if (user) {
+      if (token) {
+        const decoded = jwt.verify(token, "apple");
+        const user = await User.findById(decoded?.id);
         req.user = user;
-        return next();
-      } else {
-        throw new Error("User not found");
+        next();
       }
     } catch (error) {
-      res.status(401);
-      throw new Error("Token expired or invalid");
-    }
+      res.status(401).send("Token expired or invalid"); }
   } else {
-    res.status(401);
-    throw new Error("No token provided");
-  }
+    res.status(401).send("No token provided");  }
 });
-
 const isAdmin = (async(req,res,next) => {
    const {email} = req.user;
   try {

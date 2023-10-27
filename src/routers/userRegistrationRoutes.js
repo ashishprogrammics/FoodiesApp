@@ -31,7 +31,7 @@ router.post("/forgot", frogotPassword);
 router.patch("/verifyForgot", verifyFrogotPassword);
 router.delete("/:id", deleteUser);
 router.post("/getSingleUser", getOneUser);
-router.patch("/editUser",authMiddleware, editUserDetails)
+router.patch("/editUser", editUserDetails)
 
 
 router.get('/index', (req, res) => {
